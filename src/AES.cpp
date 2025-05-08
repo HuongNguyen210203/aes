@@ -132,11 +132,11 @@ std::vector<uint8_t> AES::decryptBlock(const std::vector<uint8_t>& input)
     {
         printf("Round: %d\n", 10 - round);
         AESUtils::printState(state);
-        invSubBytes(state);   // Changed order - this should come second
+        invSubBytes(state);   
         AESUtils::printState(state);
-        invShiftRows(state);  // Changed order - this should come first
+        invShiftRows(state);  
         addRoundKey(state, round);
-        invMixColumns(state); // This moves to after addRoundKeyEq
+        invMixColumns(state); 
 
     }
     
