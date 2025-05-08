@@ -35,7 +35,6 @@ AES::AES(const std::vector<uint8_t>& key) : Nb(4)
     }
 
     roundKeys = AESKeyExpander::expandKey(key, Nk, Nr);
-//     generateEquivalentDecryptionKeys();
 }
 
 //Done
@@ -63,7 +62,6 @@ std::vector<uint8_t> AES::encryptBlock(const std::vector<uint8_t>& input)
     StateMatrix state = AESUtils::bytesToStateMatrix(input);
 
     addRoundKey(state, 0);
-    // AESUtils::printState(state);
 
     
     for (int i=1; i<Nr; i++)
@@ -72,7 +70,6 @@ std::vector<uint8_t> AES::encryptBlock(const std::vector<uint8_t>& input)
         shiftRows(state);
         mixColumns(state);
         addRoundKey(state, i);
-        // AESUtils::printState(state);
     }
     subBytes(state);
     shiftRows(state);
@@ -127,10 +124,8 @@ void AES::mixColumns(StateMatrix& state)
 std::vector<uint8_t> AES::decryptBlock(const std::vector<uint8_t>& input)
 {
     StateMatrix state = AESUtils::bytesToStateMatrix(input);
-    AESUtils::printState(state);
     // Initial round key addition (last round key)
     addRoundKey(state, Nr);
-    AESUtils::printState(state);
     
     // Nr-1 downto 1 rounds
     for (int round = Nr - 1; round >= 1; --round)
