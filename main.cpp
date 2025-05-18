@@ -15,7 +15,6 @@ void printHex(const std::vector<uint8_t>& data) {
 }
 
 int main() {
-   
     std::vector<uint8_t> key = {
         0x2b, 0x7e, 0x15, 0x16,
         0x28, 0xae, 0xd2, 0xa6,

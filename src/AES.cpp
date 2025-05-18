@@ -37,24 +37,38 @@ AES::AES(const std::vector<uint8_t>& key) : Nb(4)
     roundKeys = AESKeyExpander::expandKey(key, Nk, Nr);
 }
 
-//Done
+// //Done
 void AES::addRoundKey(StateMatrix& state, int round)
 {
-    
-    for (int col=0; col<4; col++)
-    {
-        int index = round * 4 + col;
-        // printf("Index: %d\n", index);
-        // printf("Hex: 0x%x\n", roundKeys[index]);
+    int base = round * 4;
 
-        for (int row=0; row<4; row++)
-        {
-            // printf("Hex before xor: 0x%x\n", (roundKeys[index] & (0xff << (8 * (3 - row)))) >> (8 * (3 - row)));
-            state[row][col] ^= (roundKeys[index] & (0xff << (8 * (3 - row)))) >> (8 * (3 - row));
-            // printf("Hex after xor: 0x%x\n", state[row][col]);
-        }
-    }
+    uint32_t w0 = roundKeys[base + 0];
+    uint32_t w1 = roundKeys[base + 1];
+    uint32_t w2 = roundKeys[base + 2];
+    uint32_t w3 = roundKeys[base + 3];
+
+    state[0][0] ^= (w0 >> 24) & 0xFF;
+    state[1][0] ^= (w0 >> 16) & 0xFF;
+    state[2][0] ^= (w0 >> 8)  & 0xFF;
+    state[3][0] ^= (w0)       & 0xFF;
+
+    state[0][1] ^= (w1 >> 24) & 0xFF;
+    state[1][1] ^= (w1 >> 16) & 0xFF;
+    state[2][1] ^= (w1 >> 8)  & 0xFF;
+    state[3][1] ^= (w1)       & 0xFF;
+
+    state[0][2] ^= (w2 >> 24) & 0xFF;
+    state[1][2] ^= (w2 >> 16) & 0xFF;
+    state[2][2] ^= (w2 >> 8)  & 0xFF;
+    state[3][2] ^= (w2)       & 0xFF;
+
+    state[0][3] ^= (w3 >> 24) & 0xFF;
+    state[1][3] ^= (w3 >> 16) & 0xFF;
+    state[2][3] ^= (w3 >> 8)  & 0xFF;
+    state[3][3] ^= (w3)       & 0xFF;
 }
+
+
 
 std::vector<uint8_t> AES::encryptBlock(const std::vector<uint8_t>& input)
 {
@@ -91,16 +105,32 @@ void AES::subBytes(StateMatrix& state)
 //Done
 void AES::shiftRows(StateMatrix& state)
 {
-   StateMatrix temp = state;
     //0 1 2 3
     //1 2 3 0
     //2 3 0 1
     //3 0 1 2
+    StateMatrix temp = state;
 
-    for (int row=1; row<4; row++)
-        for (int col=0; col<4; col++)
-            state[row][col] = temp[row][(col + row) % 4];
+    // Row 1 (shift left by 1)
+    state[1][0] = temp[1][1];
+    state[1][1] = temp[1][2];
+    state[1][2] = temp[1][3];
+    state[1][3] = temp[1][0];
+
+    // Row 2 (shift left by 2)
+    state[2][0] = temp[2][2];
+    state[2][1] = temp[2][3];
+    state[2][2] = temp[2][0];
+    state[2][3] = temp[2][1];
+
+    // Row 3 (shift left by 3)
+    state[3][0] = temp[3][3];
+    state[3][1] = temp[3][0];
+    state[3][2] = temp[3][1];
+    state[3][3] = temp[3][2];
 }
+
+
 
 //Done
 void AES::mixColumns(StateMatrix& state)
@@ -160,19 +190,31 @@ void AES::invSubBytes(StateMatrix& state)
 //Done
 void AES::invShiftRows(StateMatrix& state)
 {
-    StateMatrix temp = state;
     //0 1 2 3 : row 0
     //3 0 1 2 : row 1
     //2 3 0 1 : row 2
     //1 2 3 0 : row 3
-    for (int row=1; row<4; row++)
-    {
-        for (int col=0; col<4; col++)
-        {
-            state[row][col] = temp[row][(col + (4 - row)) % 4];
-        }
-    }
+    StateMatrix temp = state;
+    
+    // Row 1 (shift right by 1)
+    state[1][0] = temp[1][3];
+    state[1][1] = temp[1][0];
+    state[1][2] = temp[1][1];
+    state[1][3] = temp[1][2];
+
+    // Row 2 (shift right by 2)
+    state[2][0] = temp[2][2];
+    state[2][1] = temp[2][3];
+    state[2][2] = temp[2][0];
+    state[2][3] = temp[2][1];
+
+    // Row 3 (shift right by 3)
+    state[3][0] = temp[3][1];
+    state[3][1] = temp[3][2];
+    state[3][2] = temp[3][3];
+    state[3][3] = temp[3][0];
 }
+
 
 //Done
 void AES::invMixColumns(StateMatrix& state)
