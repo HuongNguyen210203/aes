@@ -160,10 +160,10 @@ std::vector<uint8_t> AES::decryptBlock(const std::vector<uint8_t>& input)
     // Nr-1 downto 1 rounds
     for (int round = Nr - 1; round >= 1; --round)
     {
-        printf("Round: %d\n", 10 - round);
-        AESUtils::printState(state);
+        // printf("Round: %d\n", 10 - round);
+        // AESUtils::printState(state);
         invSubBytes(state);   
-        AESUtils::printState(state);
+        // AESUtils::printState(state);
         invShiftRows(state);  
         addRoundKey(state, round);
         invMixColumns(state); 
